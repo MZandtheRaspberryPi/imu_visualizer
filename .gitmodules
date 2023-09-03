@@ -1,0 +1,3 @@
+[submodule "ArduiPi_OLED"]
+	path = ArduiPi_OLED
+	url = git@github.com:MZandtheRaspberryPi/ArduiPi_OLED.git
