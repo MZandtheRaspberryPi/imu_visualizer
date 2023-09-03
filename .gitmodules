@@ -1,0 +1,3 @@
+[submodule "ArduiPi_OLED"]
+	path = ArduiPi_OLED
+	url = git@github.com:hallard/ArduiPi_OLED.git
