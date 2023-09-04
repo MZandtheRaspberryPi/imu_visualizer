@@ -14,4 +14,4 @@ RUN make
 
 RUN ls -ltr
 
-ENTRYPOINT [ "/repo/ArduiPi_OLED/oled_demo", "--verbose", "--oled", "3"]
+ENTRYPOINT [ "/repo/ArduiPi_OLED/build/oled_demo", "--verbose", "--oled", "3"]
