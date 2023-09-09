@@ -33,6 +33,23 @@ struct FlattenedCoordinateFrame {
   size_t z_ending_index = 5;
 };
 
+struct FlattenedCoordinateFrameNonMatrix {
+  // 6 x2 matrix, 2 rows per x, y, z. x represented by starting point, ending
+  // point of line.
+  double x_start_x;
+  double x_start_y;
+  double y_start_x;
+  double y_start_y;
+  double z_start_x;
+  double z_start_y;
+  double x_end_x;
+  double x_end_y;
+  double y_end_x;
+  double y_end_y;
+  double z_end_x;
+  double z_end_y;
+};
+
 bool get_bit(const byte *arr, const size_t &position);
 void set_bit(const byte *arr, const size_t &index);
 

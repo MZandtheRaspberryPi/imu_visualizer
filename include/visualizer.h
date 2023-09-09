@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -152,3 +153,8 @@ private:
   size_t display_height_;
   CoordinateFrame base_frame_;
 };
+
+extern "C" {
+FlattenedCoordinateFrameNonMatrix
+rotate_frame(double x_rotation, double y_rotation, double z_rotation);
+}

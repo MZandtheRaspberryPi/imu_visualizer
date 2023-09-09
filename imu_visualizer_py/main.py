@@ -12,10 +12,56 @@ Adafruit Blinka to support CircuitPython libraries. CircuitPython does
 not support PIL/pillow (python imaging library)!
 """
 
+from ctypes import CDLL, Structure, c_double
+import math
+import signal
+import sys
+import time
+
 import board
 import digitalio
 from PIL import Image, ImageDraw, ImageFont
 import adafruit_ssd1306
+
+EXIT_FLAG = False
+
+def signal_handler(sig, frame):
+    global EXIT_FLAG
+    print('You pressed Ctrl+C!')
+    EXIT_FLAG = True
+
+signal.signal(signal.SIGINT, signal_handler)
+
+class FlattenedCoordinateFrameNonMatrix(Structure):
+
+    _fields_ = [("x_start_x", c_double),
+                ("x_start_y", c_double),
+                ("x_end_x", c_double),
+                ("x_end_y", c_double),
+                ("y_start_x", c_double),
+                ("y_start_y", c_double),
+                ("y_end_x", c_double),
+                ("y_end_y", c_double),
+                ("z_start_x", c_double),
+                ("z_start_y", c_double),
+                ("z_end_x", c_double),
+                ("z_end_y", c_double)
+                ]
+
+lib_vis = CDLL("libimu_visualizer_lib.so")
+
+rotate_frame = lib_vis.rotate_frame
+
+rotate_frame.argtypes = [c_double, c_double, c_double]
+rotate_frame.restype = FlattenedCoordinateFrameNonMatrix
+
+def rotate_frame_py(rot_x, rot_y, rot_z):
+    rot_x_double = c_double(rot_x)
+    rot_y_double = c_double(rot_y)
+    rot_z_double = c_double(rot_z)
+
+    return rotate_frame(rot_x_double, rot_y_double, rot_z_double)
+
 
 # Define the Reset Pin
 oled_reset = digitalio.DigitalInOut(board.D4)
@@ -74,3 +120,21 @@ draw.text(
 # Display image
 oled.image(image)
 oled.show()
+
+time.sleep(3)
+# Clear display.
+oled.fill(0)
+oled.show()
+
+rotation = 0
+while not EXIT_FLAG:
+    draw = ImageDraw.Draw(image)
+    rotated_frame = rotate_frame_py(0, 0, rotation)
+    rotation += 1 * math.PI / 180
+
+    draw.line([(rotated_frame.x_start_x.value, rotated_frame.x_start_y.value), (rotated_frame.x_end_x.value,, rotated_frame.x_end_y.value)])
+
+    oled.image(image)
+    oled.show()
+
+    time.sleep(0.010)
