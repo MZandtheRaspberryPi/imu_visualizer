@@ -1,14 +1,16 @@
 FROM ubuntu:22.04
 
 RUN apt-get update
-RUN apt-get install build-essential git-core libi2c-dev i2c-tools lm-sensors cmake -y
+RUN apt-get install build-essential g++ git-core libi2c-dev i2c-tools lm-sensors cmake unzip wget -y
 
+
+WORKDIR /
 COPY . /repo
 
-WORKDIR /repo/ArduiPi_OLED
+WORKDIR /repo/
 RUN ls -ltr
 RUN mkdir build
-WORKDIR /repo/ArduiPi_OLED/build
+WORKDIR /repo/build
 RUN cmake ..
 RUN make
 
