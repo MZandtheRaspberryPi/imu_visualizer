@@ -117,7 +117,7 @@ while not EXIT_FLAG:
 
     all_line_points = line_points_x + line_points_y + line_points_z
 
-    print("lines y {}".format(all_line_points))
+    print("lines {}".format(all_line_points))
 
     draw.line(line_points_x, 1)
     draw.line(line_points_y, 1)

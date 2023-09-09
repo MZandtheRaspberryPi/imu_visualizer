@@ -14,19 +14,21 @@ rotate_frame(double x_rotation, double y_rotation, double z_rotation) {
   FlattenedCoordinateFrame flattened_frame =
       vis.flatten_coordinate_frame(new_frame);
 
+  std::cout << "flattened coord\n" << flattened_frame.frame << std::endl;
+
   FlattenedCoordinateFrameNonMatrix flatted_frame_non_mat;
   flatted_frame_non_mat.x_start_x = flattened_frame.frame(0, 0);
   flatted_frame_non_mat.x_start_y = flattened_frame.frame(0, 1);
   flatted_frame_non_mat.x_end_x = flattened_frame.frame(1, 0);
   flatted_frame_non_mat.x_end_y = flattened_frame.frame(1, 1);
-  flatted_frame_non_mat.y_start_x = flattened_frame.frame(0, 0);
-  flatted_frame_non_mat.y_start_y = flattened_frame.frame(0, 1);
-  flatted_frame_non_mat.y_end_x = flattened_frame.frame(1, 0);
-  flatted_frame_non_mat.y_end_y = flattened_frame.frame(1, 1);
-  flatted_frame_non_mat.z_start_x = flattened_frame.frame(0, 0);
-  flatted_frame_non_mat.z_start_y = flattened_frame.frame(0, 1);
-  flatted_frame_non_mat.z_end_x = flattened_frame.frame(1, 0);
-  flatted_frame_non_mat.z_end_y = flattened_frame.frame(1, 1);
+  flatted_frame_non_mat.y_start_x = flattened_frame.frame(2, 0);
+  flatted_frame_non_mat.y_start_y = flattened_frame.frame(2, 1);
+  flatted_frame_non_mat.y_end_x = flattened_frame.frame(3, 0);
+  flatted_frame_non_mat.y_end_y = flattened_frame.frame(3, 1);
+  flatted_frame_non_mat.z_start_x = flattened_frame.frame(4, 0);
+  flatted_frame_non_mat.z_start_y = flattened_frame.frame(4, 1);
+  flatted_frame_non_mat.z_end_x = flattened_frame.frame(5, 0);
+  flatted_frame_non_mat.z_end_y = flattened_frame.frame(5, 1);
   return flatted_frame_non_mat;
 }
 }

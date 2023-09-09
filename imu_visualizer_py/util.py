@@ -5,14 +5,14 @@ class FlattenedCoordinateFrameNonMatrix(Structure):
 
     _fields_ = [("x_start_x", c_double),
                 ("x_start_y", c_double),
-                ("x_end_x", c_double),
-                ("x_end_y", c_double),
                 ("y_start_x", c_double),
                 ("y_start_y", c_double),
-                ("y_end_x", c_double),
-                ("y_end_y", c_double),
                 ("z_start_x", c_double),
                 ("z_start_y", c_double),
+                ("x_end_x", c_double),
+                ("x_end_y", c_double),
+                ("y_end_x", c_double),
+                ("y_end_y", c_double),
                 ("z_end_x", c_double),
                 ("z_end_y", c_double)
                 ]
