@@ -13,6 +13,7 @@ not support PIL/pillow (python imaging library)!
 """
 
 from ctypes import CDLL, Structure, c_double
+import os
 import math
 import signal
 import sys
@@ -48,7 +49,8 @@ class FlattenedCoordinateFrameNonMatrix(Structure):
                 ("z_end_y", c_double)
                 ]
 
-lib_vis = CDLL("libimu_visualizer_lib.so")
+
+lib_vis = CDLL(os.path.join(os.path.dirname(__file__), "libimu_visualizer_lib.so"))
 
 rotate_frame = lib_vis.rotate_frame
 
@@ -74,14 +76,7 @@ BORDER = 5
 
 # Use for I2C.
 i2c = board.I2C()  # uses board.SCL and board.SDA
-# i2c = board.STEMMA_I2C()  # For using the built-in STEMMA QT connector on a microcontroller
 oled = adafruit_ssd1306.SSD1306_I2C(WIDTH, HEIGHT, i2c, addr=0x3C, reset=oled_reset)
-
-# Use for SPI
-# spi = board.SPI()
-# oled_cs = digitalio.DigitalInOut(board.D5)
-# oled_dc = digitalio.DigitalInOut(board.D6)
-# oled = adafruit_ssd1306.SSD1306_SPI(WIDTH, HEIGHT, spi, oled_dc, oled_reset, oled_cs)
 
 # Clear display.
 oled.fill(0)
@@ -123,16 +118,25 @@ oled.show()
 
 time.sleep(3)
 # Clear display.
-oled.fill(0)
+draw.rectangle( [(0,0), (oled.width, oled.height)], fill=0)
+oled.image(image)
 oled.show()
+
+
 
 rotation = 0
 while not EXIT_FLAG:
-    draw = ImageDraw.Draw(image)
-    rotated_frame = rotate_frame_py(0, 0, rotation)
-    rotation += 1 * math.PI / 180
+    draw.rectangle( [(0,0), (oled.width, oled.height)], fill=0)
+    oled.image(image)
 
-    draw.line([(rotated_frame.x_start_x.value, rotated_frame.x_start_y.value), (rotated_frame.x_end_x.value,, rotated_frame.x_end_y.value)])
+    rotated_frame = rotate_frame_py(0, 0, rotation)
+    rotation += 1 * math.pi / 180
+
+    line_points = [(rotated_frame.y_start_x, rotated_frame.y_start_y), (rotated_frame.y_end_x, rotated_frame.y_end_y)]
+
+    print("lines {}".format(line_points))
+
+    draw.line(line_points, 1)
 
     oled.image(image)
     oled.show()

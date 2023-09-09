@@ -9,7 +9,7 @@ RUN apt-get install python3-pip -y
 
 RUN pip3 install adafruit-circuitpython-ssd1306
 
-# RUN apt-get install python3-pil python3-dev python3-rpi.gpio -y
+RUN apt-get install python3-pil python3-dev python3-rpi.gpio -y
 
 RUN pip3 install numpy
 
