@@ -12,3 +12,8 @@ docker run -it -p 8000:8000 --entrypoint=/bin/bash oled
 cd /repo/http_example
 http-server -p 8000
 ```
+
+dtparam=i2c_arm=on,i2c_arm_baudrate=1000000
+dtparam=spi=on
+
+dtoverlay=i2c-gpio,i2c_gpio_sda=4,i2c_gpio_scl=5,i2c_gpio_delay_us=2,bus=3
