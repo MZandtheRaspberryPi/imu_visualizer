@@ -132,11 +132,17 @@ while not EXIT_FLAG:
     rotated_frame = rotate_frame_py(0, 0, rotation)
     rotation += 1 * math.pi / 180
 
-    line_points = [(rotated_frame.y_start_x, rotated_frame.y_start_y), (rotated_frame.y_end_x, rotated_frame.y_end_y)]
+    line_points_y = [(rotated_frame.y_start_x, rotated_frame.y_start_y), (rotated_frame.y_end_x, rotated_frame.y_end_y)]
+    line_points_x = [(rotated_frame.x_start_x, rotated_frame.x_start_y), (rotated_frame.x_end_x, rotated_frame.x_end_y)]
+    line_points_z =  [(rotated_frame.z_start_x, rotated_frame.z_start_y), (rotated_frame.z_end_x, rotated_frame.z_end_y)]
 
-    print("lines {}".format(line_points))
+    all_line_points = line_points_x + line_points_y + line_points_z
 
-    draw.line(line_points, 1)
+    print("lines y {}".format(all_line_points))
+
+    draw.line(line_points_x, 1)
+    draw.line(line_points_y, 1)
+    draw.line(line_points_z, 1)
 
     oled.image(image)
     oled.show()
