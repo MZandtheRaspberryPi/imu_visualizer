@@ -1,4 +1,4 @@
-FROM web
+FROM mzandtheraspberrypi/imu_websocket_broadcaster:build-2023-09-10
 
 RUN apt-get update
 RUN apt-get install build-essential g++ git-core libi2c-dev i2c-tools lm-sensors cmake unzip wget libboost-all-dev  -y
@@ -13,7 +13,7 @@ RUN apt-get install python3-pil python3-dev -y
 
 RUN pip3 install numpy matplotlib
 
-# RUN apt-get install python3-rpi.gpio -y
+RUN apt-get install python3-rpi.gpio -y
 
 WORKDIR /
 COPY . /repo

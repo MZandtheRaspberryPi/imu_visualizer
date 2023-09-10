@@ -23,7 +23,8 @@ from util import rotate_frame_py
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 
-RUNNING_ON_PI = os.uname()[4].startswith("arm")
+
+RUNNING_ON_PI = os.uname()[4].startswith("arm") or os.uname()[4].startswith("aarch64")
 
 if RUNNING_ON_PI:
     import board
