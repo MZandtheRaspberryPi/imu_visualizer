@@ -79,7 +79,6 @@ struct ImuMsgVis {
   uint32_t accel_calibration;
   uint32_t mag_calibration;
   uint64_t filter_timestamp;
-  CovarianceMatrixVis euler_angles_filter;
 };
 
 bool get_bit(const byte *arr, const size_t &position);

@@ -20,6 +20,15 @@ void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis) {
     msg_vis.ground_truth = quat;
   }
 
+  if (msg.has_euler_angles())
+  {
+    TriadVis triad;
+    triad.x = msg.euler_angles().x();
+    triad.y = msg.euler_angles().y();
+    triad.z = msg.euler_angles().z();
+    msg_vis.euler_angles = triad;
+  }
+
   /*
 
   QuaternionVis ground_truth;
