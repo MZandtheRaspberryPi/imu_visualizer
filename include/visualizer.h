@@ -79,12 +79,15 @@ public:
   FlattenedCoordinateFrame
   flatten_coordinate_frame(const CoordinateFrame &frame) {
 
+    // https://stackoverflow.com/questions/724219/how-to-convert-a-3d-point-into-2d-perspective-projection
+
     m_t half_width = display_width_ / 2;
     m_t half_height = display_height_ / 2;
 
     Eigen::Matrix<m_t, 4, 4> clip_matrix =
         get_clip_matrix(M_PI / 2, display_width_ / display_height_, -1, 2);
 
+    // converting to xyzw coords
     Eigen::Matrix<m_t, 6, 4> existing_coords;
     existing_coords.setIdentity();
     existing_coords(Eigen::seq(0, 5), Eigen::seq(0, 2)) = frame.frame;
@@ -92,15 +95,17 @@ public:
     ones.setOnes();
     existing_coords(Eigen::seq(0, 5), 3) = ones;
 
-    // we will put the camera 1.5 up on z looking down
+    // doing inverse camera matrix transformation
+    // our screen has x as width and y as length, so we need to rotate pi / 2,
+    // 90 degrees, around z to correct
     Eigen::Matrix<m_t, 4, 4> inverse_camera_matrix;
     inverse_camera_matrix.setIdentity();
+    inverse_camera_matrix(2, 3) = 3;
 
     inverse_camera_matrix(Eigen::seq(0, 2), Eigen::seq(0, 2)) =
-        get_y_rotation(M_PI / 4);
+        get_y_rotation(M_PI / 8) * get_x_rotation(M_PI) *
+        get_z_rotation(M_PI / 2);
 
-    // once we rotated we want to translate -1.5 in x
-    inverse_camera_matrix(0, 3) = -5;
     std::cout << "inverse cam matrix:\n" << inverse_camera_matrix << std::endl;
     existing_coords = existing_coords * inverse_camera_matrix;
 
@@ -110,11 +115,12 @@ public:
     int r = static_cast<int>(existing_coords.rows());
 
     for (int i = 0; i < r; i++) {
-      existing_coords(i, Eigen::seq(0, 3)) =
-          existing_coords(i, Eigen::seq(0, 3)) / existing_coords(i, 3);
+      existing_coords(i, Eigen::seq(0, 2)) =
+          existing_coords(i, Eigen::seq(0, 2)) / existing_coords(i, 3);
     }
     std::cout << "existing coord post norm\n" << existing_coords << std::endl;
 
+    // applying clip matrix
     Eigen::Matrix<m_t, 6, 4> new_points;
     new_points.setZero();
 
@@ -130,6 +136,7 @@ public:
 
     std::cout << "post clip, post norm\n" << new_points << std::endl;
 
+    // screen projection from coordinate to 2d screen
     FlattenedCoordinateFrame new_frame;
     new_frame.frame.setZero();
     new_frame.frame(Eigen::seq(0, 5), 0) =

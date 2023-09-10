@@ -109,7 +109,7 @@ while not EXIT_FLAG:
         oled.image(image)
 
     rotated_frame = rotate_frame_py(0, 0, rotation)
-    rotation += 1 * math.pi / 180
+    rotation += 10 * math.pi / 180
 
     line_points_y = [(rotated_frame.y_start_x, rotated_frame.y_start_y), (rotated_frame.y_end_x, rotated_frame.y_end_y)]
     line_points_x = [(rotated_frame.x_start_x, rotated_frame.x_start_y), (rotated_frame.x_end_x, rotated_frame.x_end_y)]
