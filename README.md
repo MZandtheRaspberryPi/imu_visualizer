@@ -17,3 +17,10 @@ dtparam=i2c_arm=on,i2c_arm_baudrate=1000000
 dtparam=spi=on
 
 dtoverlay=i2c-gpio,i2c_gpio_sda=4,i2c_gpio_scl=5,i2c_gpio_delay_us=2,bus=3
+
+Datasheet for sensor is [here](https://cdn-shop.adafruit.com/datasheets/BST_BNO055_DS000_12.pdf).  
+![coordinate_system](assets/bosch_coordinate_system.png)
+
+![sensor_mounting](assets/sensor_mounting.jpg)
+
+![sensor_mounting2](assets/sensor_mounting2.jpg)

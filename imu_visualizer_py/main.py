@@ -18,12 +18,13 @@ import signal
 import sys
 import time
 
-from util import rotate_frame_py
+from util import rotate_frame_py, start_listening, stop_listening, ImuMsgVis, get_latest_imu_msg
 
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 
-RUNNING_ON_PI = os.uname()[4].startswith("arm")
+
+RUNNING_ON_PI = os.uname()[4].startswith("arm") or os.uname()[4].startswith("aarch64")
 
 if RUNNING_ON_PI:
     import board
@@ -91,6 +92,9 @@ if RUNNING_ON_PI:
 else:
     image.show()
 
+time.sleep(10)
+start_listening()
+
 time.sleep(3)
 if RUNNING_ON_PI:
     # Clear display.
@@ -108,8 +112,15 @@ while not EXIT_FLAG:
     if RUNNING_ON_PI:
         oled.image(image)
 
-    rotated_frame = rotate_frame_py(0, 0, rotation)
-    rotation += 1 * math.pi / 180
+    imu_msg: ImuMsgVis = get_latest_imu_msg()
+    rotation = [0, 0, 0]
+    if imu_msg.has_msg:
+        rotation[0] = imu_msg.euler_angles.x * math.pi / 180
+        rotation[1] = imu_msg.euler_angles.y * math.pi / 180
+        rotation[2] = imu_msg.euler_angles.z * math.pi / 180
+
+    rotated_frame = rotate_frame_py(rotation[0], rotation[1], rotation[2])
+    # rotation += 10 * math.pi / 180
 
     line_points_y = [(rotated_frame.y_start_x, rotated_frame.y_start_y), (rotated_frame.y_end_x, rotated_frame.y_end_y)]
     line_points_x = [(rotated_frame.x_start_x, rotated_frame.x_start_y), (rotated_frame.x_end_x, rotated_frame.x_end_y)]
@@ -132,3 +143,10 @@ while not EXIT_FLAG:
         plt.pause(0.001)
 
     time.sleep(0.010)
+
+stop_listening()
+if RUNNING_ON_PI:
+    # Clear display.
+    draw.rectangle( [(0,0), (oled.width, oled.height)], fill=0)
+    oled.image(image)
+    oled.show()
