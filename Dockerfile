@@ -1,7 +1,7 @@
-FROM ubuntu:22.04
+FROM web
 
 RUN apt-get update
-RUN apt-get install build-essential g++ git-core libi2c-dev i2c-tools lm-sensors cmake unzip wget protobuf-compiler libboost-all-dev  -y
+RUN apt-get install build-essential g++ git-core libi2c-dev i2c-tools lm-sensors cmake unzip wget libboost-all-dev  -y
 
 RUN python3 --version
 RUN apt-get install python3-pip -y
@@ -24,7 +24,7 @@ WORKDIR /repo/
 RUN ls -ltr
 RUN mkdir build
 WORKDIR /repo/build
-RUN cmake ..
+RUN cmake -DProtobuf_LIBRARIES=/usr/local/lib/libprotobuf.so -Dprotobuf_ABSL_PROVIDER='package' -Dabsl_DIR=/abseil/CMakeProject/install/lib/cmake/absl ..
 RUN make
 
 RUN ls -ltr

@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdint>
 #include <utility>
+#include <vector>
 
 typedef double m_t;
 typedef uint8_t byte;
@@ -48,6 +49,37 @@ struct FlattenedCoordinateFrameNonMatrix {
   double y_end_y;
   double z_end_x;
   double z_end_y;
+};
+
+struct TriadVis {
+  double x;
+  double y;
+  double z;
+};
+
+struct QuaternionVis {
+  double w;
+  TriadVis xyz;
+  ;
+};
+
+typedef std::vector<std::vector<double>> CovarianceMatrixVis;
+
+struct ImuMsgVis {
+  bool has_msg;
+  uint64_t timestamp;
+  QuaternionVis ground_truth;
+  TriadVis euler_angles;
+  TriadVis linear_acceleration;
+  TriadVis angular_acceleration;
+  TriadVis magnetometer_vector;
+  uint32_t board_temp;
+  uint32_t system_calibration;
+  uint32_t gyro_calibration;
+  uint32_t accel_calibration;
+  uint32_t mag_calibration;
+  uint64_t filter_timestamp;
+  CovarianceMatrixVis euler_angles_filter;
 };
 
 bool get_bit(const byte *arr, const size_t &position);

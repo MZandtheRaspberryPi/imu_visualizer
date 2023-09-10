@@ -8,6 +8,7 @@
 #include <Eigen/Dense>
 
 #include "util_vis.h"
+#include "websocket_listener.h"
 
 class DisplayScreen {
 
@@ -161,7 +162,15 @@ private:
   CoordinateFrame base_frame_;
 };
 
+void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis);
+std::shared_ptr<ListenerClient> get_listener();
+
 extern "C" {
 FlattenedCoordinateFrameNonMatrix
 rotate_frame(double x_rotation, double y_rotation, double z_rotation);
+
+void start_listening();
+
+void stop_listening();
+ImuMsgVis get_latest_imu_msg();
 }
