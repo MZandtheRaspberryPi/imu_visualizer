@@ -115,9 +115,9 @@ while not EXIT_FLAG:
     imu_msg: ImuMsgVis = get_latest_imu_msg()
     rotation = [0, 0, 0]
     if imu_msg.has_msg:
-        rotation[0] = imu_msg.euler_angles.x
-        rotation[1] = imu_msg.euler_angles.y
-        rotation[2] = imu_msg.euler_angles.z
+        rotation[0] = imu_msg.euler_angles.x * math.pi / 180
+        rotation[1] = imu_msg.euler_angles.y * math.pi / 180
+        rotation[2] = imu_msg.euler_angles.z * math.pi / 180
 
     rotated_frame = rotate_frame_py(rotation[0], rotation[1], rotation[2])
     # rotation += 10 * math.pi / 180
