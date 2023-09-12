@@ -32,6 +32,7 @@ if RUNNING_ON_PI:
     import adafruit_ssd1306
     print("running on pi")
 
+DEBUG_MODE = True
 EXIT_FLAG = False
 WIDTH = 128
 HEIGHT = 64
@@ -118,6 +119,15 @@ while not EXIT_FLAG:
         rotation[0] = imu_msg.euler_angles.x * math.pi / 180
         rotation[1] = imu_msg.euler_angles.y * math.pi / 180
         rotation[2] = imu_msg.euler_angles.z * math.pi / 180
+        if DEBUG_MODE:
+            for i, axis_letter in zip(range(3), ["x", "y", "z"]): 
+                draw.text(
+                  (0, i*font_height),
+                  "{}: {}pi".format(axis_letter, round(rotation[i]/math.pi, 2)),
+                  font=font,
+                  fill=255)
+
+
 
     rotated_frame = rotate_frame_py(rotation[0], rotation[1], rotation[2])
     # rotation += 10 * math.pi / 180
@@ -131,8 +141,10 @@ while not EXIT_FLAG:
     print("lines {}".format(all_line_points))
 
     for axis_letter, axis_index in zip(["x", "y", "z"], range(3)):
-        draw.line(all_line_points[axis_index], 1)
-        end_x, end_y = all_line_points[axis_index][1][0], all_line_points[axis_index][1][1]
+        start_index = axis_index * 2
+        end_index = axis_index * 2 + 1
+        draw.line([all_line_points[start_index], all_line_points[end_index]], 1)
+        end_x, end_y = all_line_points[end_index][0], all_line_points[end_index][1]
         draw.text(
             (end_x, end_y),
              axis_letter,

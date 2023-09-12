@@ -101,12 +101,13 @@ public:
     // 90 degrees, around z to correct
     Eigen::Matrix<m_t, 4, 4> inverse_camera_matrix;
     inverse_camera_matrix.setIdentity();
+/*
     inverse_camera_matrix(2, 3) = 3;
 
     inverse_camera_matrix(Eigen::seq(0, 2), Eigen::seq(0, 2)) =
         get_y_rotation(M_PI / 8) * get_x_rotation(M_PI) *
         get_z_rotation(M_PI / 2);
-
+*/
     std::cout << "inverse cam matrix:\n" << inverse_camera_matrix << std::endl;
     existing_coords = existing_coords * inverse_camera_matrix;
 
