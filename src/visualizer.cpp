@@ -14,8 +14,8 @@ void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis) {
 
     TriadVis triad;
     triad.x = msg.ground_truth().xyz().x();
-    triad.y = msg.ground_truth().xyz().x();
-    triad.z = msg.ground_truth().xyz().x();
+    triad.y = msg.ground_truth().xyz().y();
+    triad.z = msg.ground_truth().xyz().z();
     quat.xyz = triad;
     msg_vis.ground_truth = quat;
   }
