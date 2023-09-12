@@ -130,9 +130,14 @@ while not EXIT_FLAG:
 
     print("lines {}".format(all_line_points))
 
-    draw.line(line_points_x, 1)
-    draw.line(line_points_y, 1)
-    draw.line(line_points_z, 1)
+    for axis_letter, axis_index in zip(["x", "y", "z"], range(3)):
+        draw.line(all_line_points[axis_index], 1)
+        end_x, end_y = all_line_points[axis_index][1][0], all_line_points[axis_index][1][1]
+        draw.text(
+            (end_x, end_y),
+             axis_letter,
+            font=font,
+            fill=255)
 
     if RUNNING_ON_PI:
         oled.image(image)
