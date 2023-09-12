@@ -29,6 +29,7 @@ EXIT_FLAG = False
 WIDTH = 128
 HEIGHT = 64
 BORDER = 5
+FONT_SIZE = 7
 
 RUNNING_ON_PI = os.uname()[4].startswith("arm") or os.uname()[4].startswith("aarch64")
 # Create blank image for drawing.
@@ -86,7 +87,7 @@ DRAW.rectangle(
 )
 
 # Load default font.
-font = ImageFont.load_default()
+font = ImageFont.truetype("arial.ttf", FONT_SIZE)
 
 # Draw Some Text
 text = "Hello World!"
