@@ -24,6 +24,12 @@ from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 
 
+DEBUG_MODE = True
+EXIT_FLAG = False
+WIDTH = 128
+HEIGHT = 64
+BORDER = 5
+
 RUNNING_ON_PI = os.uname()[4].startswith("arm") or os.uname()[4].startswith("aarch64")
 # Create blank image for drawing.
 # Make sure to create image with mode '1' for 1-bit color.
@@ -48,12 +54,6 @@ def show():
         plt.show(block=False)
         plt.pause(0.001)
 
-
-DEBUG_MODE = True
-EXIT_FLAG = False
-WIDTH = 128
-HEIGHT = 64
-BORDER = 5
 
 def signal_handler(sig, frame):
     global EXIT_FLAG
