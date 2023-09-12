@@ -34,7 +34,7 @@ void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis) {
     triad.x = msg.linear_acceleration().x();
     triad.y = msg.linear_acceleration().y();
     triad.z = msg.linear_acceleration().z();
-    msg_vis.euler_angles = triad;
+    msg_vis.linear_acceleration = triad;
   }
 
   if (msg.has_angular_acceleration())
@@ -42,7 +42,7 @@ void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis) {
     triad.x = msg.angular_acceleration().x();
     triad.y = msg.angular_acceleration().y();
     triad.z = msg.angular_acceleration().z();
-    msg_vis.euler_angles = triad;
+    msg_vis.angular_acceleration = triad;
   }
 
   if (msg.has_magnetometer_vector())
@@ -50,7 +50,7 @@ void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis) {
     triad.x = msg.magnetometer_vector().x();
     triad.y = msg.magnetometer_vector().y();
     triad.z = msg.magnetometer_vector().z();
-    msg_vis.euler_angles = triad;
+    msg_vis.magnetometer_vector = triad;
   }
 
   if (msg.has_board_temp())
@@ -63,11 +63,11 @@ void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis) {
   }
   if (msg.has_gyro_calibration())
   {
-    msg_vis.board_temp = msg.gyro_calibration();
+    msg_vis.gyro_calibration = msg.gyro_calibration();
   }
   if (msg.has_accel_calibration())
   {
-    msg_vis.board_temp = msg.accel_calibration();
+    msg_vis.accel_calibration = msg.accel_calibration();
   }
   if (msg.has_mag_calibration())
   {
