@@ -20,30 +20,64 @@ void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis) {
     msg_vis.ground_truth = quat;
   }
 
+  TriadVis triad;
   if (msg.has_euler_angles())
   {
-    TriadVis triad;
     triad.x = msg.euler_angles().x();
     triad.y = msg.euler_angles().y();
     triad.z = msg.euler_angles().z();
     msg_vis.euler_angles = triad;
   }
 
-  /*
+  if (msg.has_linear_acceleration())
+  {
+    triad.x = msg.linear_acceleration().x();
+    triad.y = msg.linear_acceleration().y();
+    triad.z = msg.linear_acceleration().z();
+    msg_vis.euler_angles = triad;
+  }
 
-  QuaternionVis ground_truth;
-  TriadVis euler_angles;
-  TriadVis linear_acceleration;
-  TriadVis angular_acceleration;
-  TriadVis magnetometer_vector;
-  uint32_t board_temp;
-  uint32_t system_calibration;
-  uint32_t gyro_calibration;
-  uint32_t accel_calibration;
-  uint32_t mag_calibration;
-  uint64_t filter_timestamp;
-  CovarianceMatrixVis euler_angles_filter;
-  */
+  if (msg.has_angular_acceleration())
+  {
+    triad.x = msg.angular_acceleration().x();
+    triad.y = msg.angular_acceleration().y();
+    triad.z = msg.angular_acceleration().z();
+    msg_vis.euler_angles = triad;
+  }
+
+  if (msg.has_magnetometer_vector())
+  {
+    triad.x = msg.magnetometer_vector().x();
+    triad.y = msg.magnetometer_vector().y();
+    triad.z = msg.magnetometer_vector().z();
+    msg_vis.euler_angles = triad;
+  }
+
+  if (msg.has_board_temp())
+  {
+    msg_vis.board_temp = msg.board_temp();
+  }
+  if (msg.has_system_calibration())
+  {
+    msg_vis.system_calibration = msg.system_calibration();
+  }
+  if (msg.has_gyro_calibration())
+  {
+    msg_vis.board_temp = msg.gyro_calibration();
+  }
+  if (msg.has_accel_calibration())
+  {
+    msg_vis.board_temp = msg.accel_calibration();
+  }
+  if (msg.has_mag_calibration())
+  {
+    msg_vis.mag_calibration = msg.mag_calibration();
+  }
+  if (msg.has_filter_timestamp())
+  {
+    msg_vis.filter_timestamp = msg.filter_timestamp();
+  }
+
 }
 
 std::shared_ptr<ListenerClient> get_listener() {
