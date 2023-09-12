@@ -18,19 +18,36 @@ import signal
 import sys
 import time
 
-from util import rotate_frame_py, start_listening, stop_listening, ImuMsgVis, get_latest_imu_msg
+from util import rotate_frame_py, start_listening, stop_listening, ImuMsgVis, get_latest_imu_msg, is_calibrated, get_calibration_string
 
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 
 
 RUNNING_ON_PI = os.uname()[4].startswith("arm") or os.uname()[4].startswith("aarch64")
+# Create blank image for drawing.
+# Make sure to create image with mode '1' for 1-bit color.
+IMAGE = Image.new("1", (WIDTH, HEIGHT))
+
+# Get drawing object to draw on image.
+DRAW = ImageDraw.Draw(IMAGE)
 
 if RUNNING_ON_PI:
     import board
     import digitalio
     import adafruit_ssd1306
     print("running on pi")
+
+def show():
+    global IMAGE
+    if RUNNING_ON_PI:
+        oled.image(IMAGE)
+        oled.show()
+    else:
+        plt.imshow(IMAGE)
+        plt.show(block=False)
+        plt.pause(0.001)
+
 
 DEBUG_MODE = True
 EXIT_FLAG = False
@@ -56,18 +73,13 @@ if RUNNING_ON_PI:
     oled.fill(0)
     oled.show()
 
-# Create blank image for drawing.
-# Make sure to create image with mode '1' for 1-bit color.
-image = Image.new("1", (WIDTH, HEIGHT))
 
-# Get drawing object to draw on image.
-draw = ImageDraw.Draw(image)
 
 # Draw a white background
-draw.rectangle((0, 0, WIDTH, HEIGHT), outline=255, fill=255)
+DRAW.rectangle((0, 0, WIDTH, HEIGHT), outline=255, fill=255)
 
 # Draw a smaller inner rectangle
-draw.rectangle(
+DRAW.rectangle(
     (BORDER, BORDER, WIDTH - BORDER - 1, HEIGHT - BORDER - 1),
     outline=0,
     fill=0,
@@ -79,41 +91,37 @@ font = ImageFont.load_default()
 # Draw Some Text
 text = "Hello World!"
 (font_width, font_height) = font.getsize(text)
-draw.text(
+DRAW.text(
     (WIDTH// 2 - font_width // 2, HEIGHT // 2 - font_height // 2),
     text,
     font=font,
     fill=255,
 )
 
-if RUNNING_ON_PI:
-    # Display image
-    oled.image(image)
-    oled.show()
-else:
-    image.show()
+show()
 
 time.sleep(10)
 start_listening()
 
 time.sleep(3)
-if RUNNING_ON_PI:
-    # Clear display.
-    draw.rectangle( [(0,0), (oled.width, oled.height)], fill=0)
-    oled.image(image)
-    oled.show()
-else:
-    plt.imshow(image)
-    plt.show(block=False)
-    plt.pause(0.001)
+DRAW.rectangle( [(0,0), (oled.width, oled.height)], fill=0)
+show()
 
 rotation = 0
 while not EXIT_FLAG:
-    draw.rectangle( [(0,0), (WIDTH, HEIGHT)], fill=0)
-    if RUNNING_ON_PI:
-        oled.image(image)
+    DRAW.rectangle( [(0,0), (WIDTH, HEIGHT)], fill=0)
 
     imu_msg: ImuMsgVis = get_latest_imu_msg()
+
+    if not is_calibrated(imu_msg):
+        calib_str = get_calibration_string(imu_msg)
+        DRAW.text((0, 0),
+                  calib_str,
+                  font=font,
+                  fill=255)
+        show()
+        continue
+
     rotation = [0, 0, 0]
     if imu_msg.has_msg:
         rotation[0] = imu_msg.euler_angles.x * math.pi / 180
@@ -121,7 +129,7 @@ while not EXIT_FLAG:
         rotation[2] = imu_msg.euler_angles.z * math.pi / 180
         if DEBUG_MODE:
             for i, axis_letter in zip(range(3), ["x", "y", "z"]): 
-                draw.text(
+                DRAW.text(
                   (0, i*font_height),
                   "{}: {}pi".format(axis_letter, round(rotation[i]/math.pi, 2)),
                   font=font,
@@ -143,27 +151,18 @@ while not EXIT_FLAG:
     for axis_letter, axis_index in zip(["x", "y", "z"], range(3)):
         start_index = axis_index * 2
         end_index = axis_index * 2 + 1
-        draw.line([all_line_points[start_index], all_line_points[end_index]], 1)
+        DRAW.line([all_line_points[start_index], all_line_points[end_index]], 1)
         end_x, end_y = all_line_points[end_index][0], all_line_points[end_index][1]
-        draw.text(
+        DRAW.text(
             (end_x, end_y),
              axis_letter,
             font=font,
             fill=255)
 
-    if RUNNING_ON_PI:
-        oled.image(image)
-        oled.show()
-    else:
-        plt.imshow(image)
-        plt.show(block=False)
-        plt.pause(0.001)
+    show()
 
     time.sleep(0.010)
 
 stop_listening()
-if RUNNING_ON_PI:
-    # Clear display.
-    draw.rectangle( [(0,0), (oled.width, oled.height)], fill=0)
-    oled.image(image)
-    oled.show()
+DRAW.rectangle( [(0,0), (oled.width, oled.height)], fill=0)
+show()
