@@ -78,6 +78,14 @@ void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis) {
     msg_vis.filter_timestamp = msg.filter_timestamp();
   }
 
+  if (msg.has_euler_angles_filter())
+  {
+    triad.x = msg.euler_angles_filter().x();
+    triad.y = msg.euler_angles_filter().y();
+    triad.z = msg.euler_angles_filter().z();
+    msg_vis.euler_angles_filter = triad;
+  }
+
 }
 
 std::shared_ptr<ListenerClient> get_listener() {
@@ -98,11 +106,11 @@ rotate_frame(double x_rotation, double y_rotation, double z_rotation) {
 
   CoordinateFrame new_frame =
       vis.get_rotated_coordinate_frame(x_rotation, y_rotation, z_rotation);
-  std::cout << "original coord\n" << new_frame.frame << std::endl;
+  //std::cout << "original coord\n" << new_frame.frame << std::endl;
   FlattenedCoordinateFrame flattened_frame =
       vis.flatten_coordinate_frame(new_frame);
 
-  std::cout << "flattened coord\n" << flattened_frame.frame << std::endl;
+  //std::cout << "flattened coord\n" << flattened_frame.frame << std::endl;
 
   FlattenedCoordinateFrameNonMatrix flatted_frame_non_mat;
   flatted_frame_non_mat.x_start_x = flattened_frame.frame(0, 0);
@@ -140,6 +148,8 @@ ImuMsgVis get_latest_imu_msg() {
   ImuMsgVis msg_vis;
   if (listener->has_msg()) {
     imu_msgs::ImuMsg imu_msg = listener->get_msg();
+    std::string debug_str = imu_msg.DebugString();
+    std::cout << debug_str << std::endl;
     proto_msg_to_c_struct(imu_msg, msg_vis);
   } else {
     msg_vis.has_msg = false;

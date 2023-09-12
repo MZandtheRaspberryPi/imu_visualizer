@@ -42,7 +42,8 @@ class ImuMsgVis(Structure):
                 ("gyro_calibration", c_uint32),
                 ("accel_calibration", c_uint32),
                 ("mag_calibration", c_uint32),
-                ("filter_timestamp", c_uint64)]
+                ("filter_timestamp", c_uint64),
+                ("euler_angles_filter", TriadVis)]
 
 
 lib_vis = CDLL(os.path.join(os.path.dirname(__file__), "libimu_visualizer_lib.so"))

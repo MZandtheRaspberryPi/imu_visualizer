@@ -108,11 +108,11 @@ public:
         get_y_rotation(M_PI / 8) * get_x_rotation(M_PI) *
         get_z_rotation(M_PI / 2);
 */
-    std::cout << "inverse cam matrix:\n" << inverse_camera_matrix << std::endl;
+    // std::cout << "inverse cam matrix:\n" << inverse_camera_matrix << std::endl;
     existing_coords = existing_coords * inverse_camera_matrix;
 
-    std::cout << "existing coord post cam, pre norm\n"
-              << existing_coords << std::endl;
+    // std::cout << "existing coord post cam, pre norm\n"
+    //           << existing_coords << std::endl;
 
     int r = static_cast<int>(existing_coords.rows());
 
@@ -120,14 +120,14 @@ public:
       existing_coords(i, Eigen::seq(0, 2)) =
           existing_coords(i, Eigen::seq(0, 2)) / existing_coords(i, 3);
     }
-    std::cout << "existing coord post norm\n" << existing_coords << std::endl;
+    // std::cout << "existing coord post norm\n" << existing_coords << std::endl;
 
     // applying clip matrix
     Eigen::Matrix<m_t, 6, 4> new_points;
     new_points.setZero();
 
     new_points = existing_coords * clip_matrix;
-    std::cout << "post clip matrix\n" << new_points << std::endl;
+    // std::cout << "post clip matrix\n" << new_points << std::endl;
 
     r = static_cast<int>(new_points.rows());
 
@@ -136,7 +136,7 @@ public:
           new_points(i, Eigen::seq(0, 2)) / new_points(i, 3);
     }
 
-    std::cout << "post clip, post norm\n" << new_points << std::endl;
+    // std::cout << "post clip, post norm\n" << new_points << std::endl;
 
     // screen projection from coordinate to 2d screen
     FlattenedCoordinateFrame new_frame;
