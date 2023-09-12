@@ -87,7 +87,7 @@ DRAW.rectangle(
 )
 
 # Load default font.
-font = ImageFont.truetype("arial.ttf", FONT_SIZE)
+font = ImageFont.truetype(os.path.join(os.dirname(__file__, )"arial.ttf"), FONT_SIZE)
 
 # Draw Some Text
 text = "Hello World!"
