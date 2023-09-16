@@ -147,7 +147,7 @@ while not EXIT_FLAG:
 
     all_line_points = line_points_x + line_points_y + line_points_z
 
-    print("lines {}".format(all_line_points))
+    # print("lines {}".format(all_line_points))
 
     for axis_letter, axis_index in zip(["x", "y", "z"], range(3)):
         start_index = axis_index * 2

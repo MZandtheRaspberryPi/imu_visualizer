@@ -148,8 +148,6 @@ ImuMsgVis get_latest_imu_msg() {
   ImuMsgVis msg_vis{};
   if (listener->has_msg()) {
     imu_msgs::ImuMsg imu_msg = listener->get_msg();
-    std::string debug_str = imu_msg.DebugString();
-    std::cout << debug_str << std::endl;
     proto_msg_to_c_struct(imu_msg, msg_vis);
   } else {
     msg_vis.has_msg = false;
