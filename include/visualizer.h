@@ -65,6 +65,15 @@ public:
     base_frame.frame(3, 1) = 1;
     base_frame.frame(5, 2) = -1;
     base_frame_ = base_frame;
+
+    // our oled display has x as width of screen and y as height
+    // our world has x, looking down on it from positive z axis, has x going up
+    // and down and y going right left.
+    Eigen::Matrix<m_t, 2, 2> flip_x_y_matrix;
+    flip_x_y_matrix.setZero();
+    flip_x_y_matrix(1, 0) = 1;
+    flip_x_y_matrix(0, 1) = 1;
+    flip_x_y_matrix_ = flip_x_y_matrix;
   }
 
   CoordinateFrame get_rotated_coordinate_frame(m_t x_rotation, m_t y_rotation,
@@ -101,14 +110,15 @@ public:
     // 90 degrees, around z to correct
     Eigen::Matrix<m_t, 4, 4> inverse_camera_matrix;
     inverse_camera_matrix.setIdentity();
-/*
-    inverse_camera_matrix(2, 3) = 3;
+    /*
+        inverse_camera_matrix(2, 3) = 3;
 
-    inverse_camera_matrix(Eigen::seq(0, 2), Eigen::seq(0, 2)) =
-        get_y_rotation(M_PI / 8) * get_x_rotation(M_PI) *
-        get_z_rotation(M_PI / 2);
-*/
-    // std::cout << "inverse cam matrix:\n" << inverse_camera_matrix << std::endl;
+        inverse_camera_matrix(Eigen::seq(0, 2), Eigen::seq(0, 2)) =
+            get_y_rotation(M_PI / 8) * get_x_rotation(M_PI) *
+            get_z_rotation(M_PI / 2);
+    */
+    // std::cout << "inverse cam matrix:\n" << inverse_camera_matrix <<
+    // std::endl;
     existing_coords = existing_coords * inverse_camera_matrix;
 
     // std::cout << "existing coord post cam, pre norm\n"
@@ -120,7 +130,8 @@ public:
       existing_coords(i, Eigen::seq(0, 2)) =
           existing_coords(i, Eigen::seq(0, 2)) / existing_coords(i, 3);
     }
-    // std::cout << "existing coord post norm\n" << existing_coords << std::endl;
+    // std::cout << "existing coord post norm\n" << existing_coords <<
+    // std::endl;
 
     // applying clip matrix
     Eigen::Matrix<m_t, 6, 4> new_points;
@@ -154,6 +165,8 @@ public:
                 .array() /
             ((2.0F * existing_coords(Eigen::seq(0, 5), 3))).array() +
         half_height;
+
+    new_frame.frame = new_frame.frame * flip_x_y_matrix_;
     return new_frame;
   }
 
@@ -161,6 +174,7 @@ private:
   size_t display_width_;
   size_t display_height_;
   CoordinateFrame base_frame_;
+  Eigen::Matrix<m_t, 2, 2> flip_x_y_matrix_;
 };
 
 void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis);
