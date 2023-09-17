@@ -166,7 +166,7 @@ public:
             ((2.0F * existing_coords(Eigen::seq(0, 5), 3))).array() +
         half_height;
 
-    new_frame.frame = new_frame.frame * flip_x_y_matrix_;
+    // new_frame.frame = new_frame.frame * flip_x_y_matrix_;
     return new_frame;
   }
 
