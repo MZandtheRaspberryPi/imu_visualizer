@@ -1,15 +1,7 @@
 #!/usr/bin/python3
 
-# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
-# SPDX-License-Identifier: MIT
-
 """
-This demo will fill the screen with white, draw a black box on top
-and then print Hello World! in the center of the display
-
-This example is for use on (Linux) computers that are using CPython with
-Adafruit Blinka to support CircuitPython libraries. CircuitPython does
-not support PIL/pillow (python imaging library)!
+This script will start listening to the output of the filter via websockets, and display this on the OLED screen.
 """
 
 import math
@@ -75,8 +67,6 @@ if RUNNING_ON_PI:
     oled.fill(0)
     oled.show()
 
-
-
 # Draw a white background
 DRAW.rectangle((0, 0, WIDTH, HEIGHT), outline=255, fill=255)
 
@@ -87,7 +77,6 @@ DRAW.rectangle(
     fill=0,
 )
 
-# Load default font.
 font = ImageFont.truetype(os.path.join(os.path.dirname(__file__), "arial.ttf"), FONT_SIZE)
 
 # Draw Some Text
@@ -144,18 +133,13 @@ while not EXIT_FLAG:
                   font=font,
                   fill=255)
 
-
-
     rotated_frame = rotate_frame_py(rotation[0], rotation[1], rotation[2])
-    # rotation += 10 * math.pi / 180
 
     line_points_y = [(rotated_frame.y_start_x, rotated_frame.y_start_y), (rotated_frame.y_end_x, rotated_frame.y_end_y)]
     line_points_x = [(rotated_frame.x_start_x, rotated_frame.x_start_y), (rotated_frame.x_end_x, rotated_frame.x_end_y)]
     line_points_z =  [(rotated_frame.z_start_x, rotated_frame.z_start_y), (rotated_frame.z_end_x, rotated_frame.z_end_y)]
 
     all_line_points = line_points_x + line_points_y + line_points_z
-
-    # print("lines {}".format(all_line_points))
 
     for axis_letter, axis_index in zip(["x", "y", "z"], range(3)):
         start_index = axis_index * 2
