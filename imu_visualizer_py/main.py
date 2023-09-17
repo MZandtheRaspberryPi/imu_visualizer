@@ -23,7 +23,8 @@ from util import rotate_frame_py, start_listening, stop_listening, ImuMsgVis, ge
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 
-
+CHECK_CALIBRATION = False
+USE_FILTER_CALCULATED_ESTIMATES = True
 DEBUG_MODE = True
 EXIT_FLAG = False
 WIDTH = 128
@@ -91,7 +92,7 @@ font = ImageFont.truetype(os.path.join(os.path.dirname(__file__), "arial.ttf"), 
 
 # Draw Some Text
 text = "Hello World!"
-(font_width, font_height) = font.getsize(text)
+(_, _, font_width, font_height) = font.getbbox(text)
 DRAW.text(
     (WIDTH// 2 - font_width // 2, HEIGHT // 2 - font_height // 2),
     text,
@@ -114,20 +115,27 @@ while not EXIT_FLAG:
 
     imu_msg: ImuMsgVis = get_latest_imu_msg()
 
-    if not is_calibrated(imu_msg):
-        calib_str = get_calibration_string(imu_msg)
-        DRAW.text((0, 0),
+    if CHECK_CALIBRATION:
+
+        if not is_calibrated(imu_msg):
+            calib_str = get_calibration_string(imu_msg)
+            DRAW.text((0, 0),
                   calib_str,
                   font=font,
                   fill=255)
-        show()
-        continue
+            show()
+            continue
 
     rotation = [0, 0, 0]
     if imu_msg.has_msg:
-        rotation[0] = imu_msg.euler_angles.x * math.pi / 180
-        rotation[1] = imu_msg.euler_angles.y * math.pi / 180
-        rotation[2] = imu_msg.euler_angles.z * math.pi / 180
+        if USE_FILTER_CALCULATED_ESTIMATES:
+            rotation[0] = imu_msg.euler_angles_filter.x * math.pi / 180
+            rotation[1] = imu_msg.euler_angles_filter.y * math.pi / 180
+            rotation[2] = imu_msg.euler_angles_filter.z * math.pi / 180
+        else:
+            rotation[0] = imu_msg.euler_angles.x * math.pi / 180
+            rotation[1] = imu_msg.euler_angles.y * math.pi / 180
+            rotation[2] = imu_msg.euler_angles.z * math.pi / 180
         if DEBUG_MODE:
             for i, axis_letter in zip(range(3), ["x", "y", "z"]): 
                 DRAW.text(

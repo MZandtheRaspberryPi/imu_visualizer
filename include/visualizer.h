@@ -63,7 +63,7 @@ public:
     base_frame.frame.setZero();
     base_frame.frame(1, 0) = 1;
     base_frame.frame(3, 1) = 1;
-    base_frame.frame(5, 2) = 1;
+    base_frame.frame(5, 2) = -1;
     base_frame_ = base_frame;
   }
 
