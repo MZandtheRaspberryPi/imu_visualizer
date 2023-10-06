@@ -75,7 +75,7 @@ def rotate_frame_py(rot_x, rot_y, rot_z):
 
 def is_calibrated(imu_msg: ImuMsgVis):
 
-    return imu_msg.system_calibration == 3 and imu_msg.gyro_calibration==3 and imu_msg.accel_calibration == 3 and imu_msg.mag_calibration == 3
+    return imu_msg.system_calibration >= 2 and imu_msg.gyro_calibration==3 and imu_msg.accel_calibration == 3 and imu_msg.mag_calibration == 3
 
 
 def get_calibration_string(imu_msg: ImuMsgVis):

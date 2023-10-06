@@ -15,7 +15,7 @@ from util import rotate_frame_py, start_listening, stop_listening, ImuMsgVis, ge
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 
-CHECK_CALIBRATION = False
+CHECK_CALIBRATION = True
 USE_FILTER_CALCULATED_ESTIMATES = True
 DEBUG_MODE = True
 EXIT_FLAG = False

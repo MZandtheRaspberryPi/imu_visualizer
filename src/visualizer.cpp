@@ -21,71 +21,59 @@ void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis) {
   }
 
   TriadVis triad{};
-  if (msg.has_euler_angles())
-  {
+  if (msg.has_euler_angles()) {
     triad.x = msg.euler_angles().x();
     triad.y = msg.euler_angles().y();
     triad.z = msg.euler_angles().z();
     msg_vis.euler_angles = triad;
   }
 
-  if (msg.has_linear_acceleration())
-  {
+  if (msg.has_linear_acceleration()) {
     triad.x = msg.linear_acceleration().x();
     triad.y = msg.linear_acceleration().y();
     triad.z = msg.linear_acceleration().z();
     msg_vis.linear_acceleration = triad;
   }
 
-  if (msg.has_angular_acceleration())
-  {
+  if (msg.has_angular_acceleration()) {
     triad.x = msg.angular_acceleration().x();
     triad.y = msg.angular_acceleration().y();
     triad.z = msg.angular_acceleration().z();
     msg_vis.angular_acceleration = triad;
   }
 
-  if (msg.has_magnetometer_vector())
-  {
+  if (msg.has_magnetometer_vector()) {
     triad.x = msg.magnetometer_vector().x();
     triad.y = msg.magnetometer_vector().y();
     triad.z = msg.magnetometer_vector().z();
     msg_vis.magnetometer_vector = triad;
   }
 
-  if (msg.has_board_temp())
-  {
+  if (msg.has_board_temp()) {
     msg_vis.board_temp = msg.board_temp();
   }
-  if (msg.has_system_calibration())
-  {
+  if (msg.has_system_calibration()) {
     msg_vis.system_calibration = msg.system_calibration();
   }
-  if (msg.has_gyro_calibration())
-  {
+  if (msg.has_gyro_calibration()) {
     msg_vis.gyro_calibration = msg.gyro_calibration();
   }
-  if (msg.has_accel_calibration())
-  {
+  if (msg.has_accel_calibration()) {
     msg_vis.accel_calibration = msg.accel_calibration();
   }
-  if (msg.has_mag_calibration())
-  {
+  if (msg.has_mag_calibration()) {
     msg_vis.mag_calibration = msg.mag_calibration();
   }
-  if (msg.has_filter_timestamp())
-  {
+  if (msg.has_filter_timestamp()) {
     msg_vis.filter_timestamp = msg.filter_timestamp();
   }
 
-  if (msg.has_euler_angles_filter())
-  {
+  if (msg.has_euler_angles_filter()) {
     triad.x = msg.euler_angles_filter().x();
     triad.y = msg.euler_angles_filter().y();
     triad.z = msg.euler_angles_filter().z();
     msg_vis.euler_angles_filter = triad;
   }
-
 }
 
 std::shared_ptr<ListenerClient> get_listener() {
@@ -104,13 +92,16 @@ rotate_frame(double x_rotation, double y_rotation, double z_rotation) {
   static double height = 64;
   static IMUVisualizer vis(width, height);
 
+  // we take in rotation that represents rotation from world frame to sensor
+  // frame. to show the world frame on our oled screen, we need to negate the
+  // rotation
   CoordinateFrame new_frame =
-      vis.get_rotated_coordinate_frame(x_rotation, y_rotation, z_rotation);
-  //std::cout << "original coord\n" << new_frame.frame << std::endl;
+      vis.get_rotated_coordinate_frame(-x_rotation, -y_rotation, -z_rotation);
+  // std::cout << "original coord\n" << new_frame.frame << std::endl;
   FlattenedCoordinateFrame flattened_frame =
       vis.flatten_coordinate_frame(new_frame);
 
-  //std::cout << "flattened coord\n" << flattened_frame.frame << std::endl;
+  // std::cout << "flattened coord\n" << flattened_frame.frame << std::endl;
 
   FlattenedCoordinateFrameNonMatrix flatted_frame_non_mat;
   flatted_frame_non_mat.x_start_x = flattened_frame.frame(0, 0);
