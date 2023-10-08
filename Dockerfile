@@ -28,14 +28,19 @@ RUN cp libimu_visualizer_lib.so /repo/imu_visualizer_py/libimu_visualizer_lib.so
 
 FROM ubuntu:22.04
 
+ARG BUILD_IMAGE=mzandtheraspberrypi/imu_websocket_broadcaster:build-2023-09-10
+
 RUN apt-get update
 RUN apt-get install python3.10 python3-pip -y
 RUN python3 --version
-ARG BUILD_IMAGE=mzandtheraspberrypi/imu_websocket_broadcaster:build-2023-09-10
 RUN pip3 install adafruit-circuitpython-ssd1306 numpy matplotlib
 ENV TZ=Europe/London
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN if [[ ${BUILD_IMAGE} == *"amd"* ]] ; then echo "installing rpi.gpio" && apt-get install python3-rpi.gpio -y ; else echo "skipping installing rpi.gpio" && apt-get install python3-tk -y ; fi
+RUN if [ "$BUILD_IMAGE" = "mzandtheraspberrypi/imu_websocket_broadcaster:build-2023-09-10" ] ; then \
+        echo "installing rpi.gpio" && apt-get install python3-rpi.gpio -y; \
+    else \
+       echo "skipping installing rpi.gpio, installing tkinter" && apt-get install python3-tk -y; \
+    fi
 
 RUN apt-get install python3-pil -y # python3-dev
 
