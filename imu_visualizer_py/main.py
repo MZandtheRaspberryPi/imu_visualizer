@@ -86,9 +86,11 @@ font = ImageFont.truetype(os.path.join(os.path.dirname(__file__), "arial.ttf"), 
 
 # Draw Some Text
 text = "Hello World!"
-(_, _, font_width, font_height) = font.getbbox(text)
+(left, top, right, bottom) = font.getbbox(text)
+font_height = bottom - top + 1
+font_width = (right - left) / len(text)
 DRAW.text(
-    (WIDTH// 2 - font_width // 2, HEIGHT // 2 - font_height // 2),
+    (WIDTH// 2 - right // 2, HEIGHT // 2 - bottom // 2),
     text,
     font=font,
     fill=255,
@@ -116,16 +118,21 @@ while not EXIT_FLAG:
         x_rot, y_rot, z_rot = parse_xyz_input(x_y_z_rot_str)
         imu_msg: ImuMsgVis = get_mock_ImuMsgVis(x_rot, y_rot, z_rot)
 
-    if CHECK_CALIBRATION:
 
-        if not is_calibrated(imu_msg):
-            calib_str = get_calibration_string(imu_msg)
-            DRAW.text((0, 0),
+    is_cal = is_calibrated(imu_msg)
+    if CHECK_CALIBRATION and not is_cal:
+
+        calib_str = get_calibration_string(imu_msg)
+        DRAW.text((0, 0),
                   calib_str,
                   font=font,
                   fill=255)
-            show()
-            continue
+        show()
+        continue
+    else:
+        calib_str = "cal: " + str(imu_msg.system_calibration)
+        DRAW.text((WIDTH - font_width*len(calib_str), 0),
+                  calib_str, font = font, fill=255) 
 
     rotation = [0, 0, 0]
     if imu_msg.has_msg:
@@ -163,9 +170,9 @@ while not EXIT_FLAG:
              axis_letter,
             font=font,
             fill=255)
-    uncertainty_text = "Uncertainty: " + str(imu_msg.covariance_matrix_trace)
+    uncertainty_text = "Uncertainty: " + str(round(imu_msg.covariance_matrix_trace, 2))
     DRAW.text(
-            (0, HEIGHT-font_height),
+            (0, HEIGHT-font_height - 3),
              uncertainty_text,
             font=font,
             fill=255)
