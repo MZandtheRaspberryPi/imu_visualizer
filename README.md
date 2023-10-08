@@ -8,6 +8,25 @@ a repo to read imu messages from a filter via websockets, serialized with protob
 
 ## Useful commands
 
+amd
+```
+docker build -t vis --build-arg="BUILD_IMAGE=mzandtheraspberrypi/imu_websocket_broadcaster:build-amd-2023-09-10" .
+```
+```
+xhost +; docker run -it --env DISPLAY=$DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix --network host vis ; xhost -;
+```
+
+or, use existing one:
+```
+xhost +; docker run -it --env DISPLAY=$DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix --network host mzandtheraspberrypi/imu_websocket_visualizer:amd-2023-09-17-v2 ; xhost -;
+```
+
+arm
+```
+docker build -t vis --build-arg="BUILD_IMAGE=mzandtheraspberrypi/imu_websocket_broadcaster:build-2023-09-10" .
+```
+
+
 ```
 sudo docker run -it --device /dev/i2c-3 --device /dev/mem --privileged --entrypoint=/bin/bash oled
 ```
@@ -40,3 +59,4 @@ Fig 1, Saito, A., Kizawa, S., Kobayashi, Y. et al. Pose estimation by extended K
 
 Whereas our screen has this coordinate system:  
 ![screen_coordinate_system](assets/screen_coordinate_system.png)  
+

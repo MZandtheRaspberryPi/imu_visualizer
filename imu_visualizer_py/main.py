@@ -10,9 +10,11 @@ import signal
 import sys
 import time
 
-from util import rotate_frame_py, start_listening, stop_listening, ImuMsgVis, get_latest_imu_msg, is_calibrated, get_calibration_string
+from util import rotate_frame_py, start_listening, stop_listening, ImuMsgVis, get_latest_imu_msg, \
+ is_calibrated, get_calibration_string, get_mock_ImuMsgVis, parse_xyz_input
 
 from PIL import Image, ImageDraw, ImageFont
+import matplotlib
 import matplotlib.pyplot as plt
 
 CHECK_CALIBRATION = False
@@ -36,7 +38,10 @@ if RUNNING_ON_PI:
     import board
     import digitalio
     import adafruit_ssd1306
-    print("running on pi")
+    print("running on pi", flush=True)
+else:
+    print("not running on a pi", flush=True)
+    matplotlib.use("TkAgg")
 
 def show():
     global IMAGE
@@ -51,7 +56,7 @@ def show():
 
 def signal_handler(sig, frame):
     global EXIT_FLAG
-    print('You pressed Ctrl+C!')
+    print('You pressed Ctrl+C!', flush=True)
     EXIT_FLAG = True
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -91,18 +96,25 @@ DRAW.text(
 
 show()
 
-time.sleep(10)
-start_listening()
+if RUNNING_ON_PI:
+    time.sleep(10)
+    start_listening()
+    time.sleep(3)
 
-time.sleep(3)
-DRAW.rectangle( [(0,0), (oled.width, oled.height)], fill=0)
+DRAW.rectangle( [(0,0), (WIDTH, HEIGHT)], fill=0)
 show()
 
 rotation = 0
 while not EXIT_FLAG:
     DRAW.rectangle( [(0,0), (WIDTH, HEIGHT)], fill=0)
 
-    imu_msg: ImuMsgVis = get_latest_imu_msg()
+    if RUNNING_ON_PI:
+        imu_msg: ImuMsgVis = get_latest_imu_msg()
+    else:
+        print("enter rotation input, or ctrl+c and hit enter after to exit.", flush=True)
+        x_y_z_rot_str = input()
+        x_rot, y_rot, z_rot = parse_xyz_input(x_y_z_rot_str)
+        imu_msg: ImuMsgVis = get_mock_ImuMsgVis(x_rot, y_rot, z_rot)
 
     if CHECK_CALIBRATION:
 
@@ -126,7 +138,7 @@ while not EXIT_FLAG:
             rotation[1] = imu_msg.euler_angles.y * math.pi / 180
             rotation[2] = imu_msg.euler_angles.z * math.pi / 180
         if DEBUG_MODE:
-            for i, axis_letter in zip(range(3), ["x", "y", "z"]): 
+            for i, axis_letter in zip(range(3), ["x", "y", "z"]):
                 DRAW.text(
                   (0, i*font_height),
                   "{}: {}pi".format(axis_letter, round(rotation[i]/math.pi, 2)),
@@ -151,11 +163,17 @@ while not EXIT_FLAG:
              axis_letter,
             font=font,
             fill=255)
-
+    uncertainty_text = "Uncertainty: " + str(imu_msg.covariance_matrix_trace)
+    DRAW.text(
+            (0, HEIGHT-font_height),
+             uncertainty_text,
+            font=font,
+            fill=255)
     show()
 
     time.sleep(0.010)
 
-stop_listening()
-DRAW.rectangle( [(0,0), (oled.width, oled.height)], fill=0)
+if RUNNING_ON_PI:
+    stop_listening()
+DRAW.rectangle( [(0,0), (WIDTH, HEIGHT)], fill=0)
 show()

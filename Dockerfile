@@ -1,4 +1,5 @@
-FROM mzandtheraspberrypi/imu_websocket_broadcaster:build-2023-09-10 as build
+ARG BUILD_IMAGE=mzandtheraspberrypi/imu_websocket_broadcaster:build-2023-09-10
+FROM ${BUILD_IMAGE} as build
 
 RUN apt-get update
 RUN apt-get install build-essential g++ git-core libi2c-dev i2c-tools lm-sensors cmake unzip wget libboost-all-dev  -y
@@ -30,10 +31,13 @@ FROM ubuntu:22.04
 RUN apt-get update
 RUN apt-get install python3.10 python3-pip -y
 RUN python3 --version
-
+ARG BUILD_IMAGE=mzandtheraspberrypi/imu_websocket_broadcaster:build-2023-09-10
 RUN pip3 install adafruit-circuitpython-ssd1306 numpy matplotlib
+ENV TZ=Europe/London
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN if [[ ${BUILD_IMAGE} == *"amd"* ]] ; then echo "installing rpi.gpio" && apt-get install python3-rpi.gpio -y ; else echo "skipping installing rpi.gpio" && apt-get install python3-tk -y ; fi
 
-RUN apt-get install python3-pil python3-rpi.gpio -y # python3-dev
+RUN apt-get install python3-pil -y # python3-dev
 
 COPY --from=build /repo/build/imu_websockets/libimu_websockets_lib.so /usr/local/lib/
 COPY --from=build /usr/local/lib/libprotobuf.so.24.3.0 /usr/local/lib/

@@ -1,5 +1,6 @@
 from ctypes import CDLL, Structure, c_double, c_bool, c_uint64, c_uint32
 import os
+from typing import Tuple
 
 class FlattenedCoordinateFrameNonMatrix(Structure):
 
@@ -43,7 +44,8 @@ class ImuMsgVis(Structure):
                 ("accel_calibration", c_uint32),
                 ("mag_calibration", c_uint32),
                 ("filter_timestamp", c_uint64),
-                ("euler_angles_filter", TriadVis)]
+                ("euler_angles_filter", TriadVis),
+                ("covariance_matrix_trace", c_uint64)]
 
 
 lib_vis = CDLL(os.path.join(os.path.dirname(__file__), "libimu_visualizer_lib.so"))
@@ -85,3 +87,43 @@ def get_calibration_string(imu_msg: ImuMsgVis):
     calib_str += "accel: {}\n".format(imu_msg.accel_calibration)
     calib_str += "mag: {}\n".format(imu_msg.mag_calibration)
     return calib_str
+
+def get_mock_ImuMsgVis(x_rotation_degrees: float, y_rotation_degrees: float, z_rotation_degrees: float):
+    msg = ImuMsgVis()
+    msg.system_calibration = c_uint32(3)
+    msg.gyro_calibration = c_uint32(3)
+    msg.accel_calibration = c_uint32(3)
+    msg.mag_calibration = c_uint32(3)
+
+    euler_angles = TriadVis()
+    euler_angles.x = c_double(x_rotation_degrees)
+    euler_angles.y = c_double(y_rotation_degrees)
+    euler_angles.z = c_double(z_rotation_degrees)
+
+    msg.euler_angles = euler_angles
+    msg.euler_angles_filter = euler_angles
+
+    msg.has_msg = c_bool(True)
+
+    msg.covariance_matrix_trace = 5000
+
+    return msg
+
+def parse_xyz_input(x_y_z_rot_str: str) -> Tuple[float, float, float]:
+    err_res = (0, 0, 0)
+    example_str = "0,0,30"
+
+    if x_y_z_rot_str.count(",") != 2:
+        print("did not input valid string, example: " + example_str)
+        return err_res
+    split_rotations = x_y_z_rot_str.split(",")
+    if len(split_rotations) != 3:
+        print("did not input valid string, example: " + example_str)
+        return err_res
+    parsed_rotations = []
+    try:
+        parsed_rotations = [float(val) for val in split_rotations]
+    except ValueError as err:
+        print("did not input valid string, example: " + example_str)
+        return err_res
+    return (parsed_rotations[0], parsed_rotations[1], parsed_rotations[2])

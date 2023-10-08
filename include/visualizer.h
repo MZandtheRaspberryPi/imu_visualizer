@@ -57,8 +57,10 @@ private:
 
 class IMUVisualizer {
 public:
-  IMUVisualizer(const size_t &display_width, const size_t &display_height)
-      : display_width_(display_width), display_height_(display_height) {
+  IMUVisualizer(const size_t &display_width, const size_t &display_height,
+                const double &frame_rescale_factor = 1.5)
+      : display_width_(display_width), display_height_(display_height),
+        frame_rescale_factor_(frame_rescale_factor) {
     CoordinateFrame base_frame;
     base_frame.frame.setZero();
     base_frame.frame(1, 0) = 1;
@@ -66,18 +68,36 @@ public:
     base_frame.frame(5, 2) = -1;
     base_frame_ = base_frame;
 
-    // our oled display has x as width of screen and y as height
-    // our world has x, looking down on it from positive z axis, has x going up
-    // and down and y going right left.
-    Eigen::Matrix<m_t, 2, 2> flip_x_y_matrix;
+    // our oled display has x as width of screen and y as height. Y increases
+    // going to bottom of display. our world, looking down on it from
+    // positive z axis, has x going up and down and y going right left.
+    Eigen::Matrix<m_t, 3, 3> flip_x_y_matrix;
     flip_x_y_matrix.setZero();
     flip_x_y_matrix(1, 0) = 1;
-    flip_x_y_matrix(0, 1) = 1;
+    flip_x_y_matrix(0, 1) = -1;
+    flip_x_y_matrix(2, 2) = 1;
     flip_x_y_matrix_ = flip_x_y_matrix;
+
+    half_width_ = display_width_ / 2;
+    half_height_ = display_height_ / 2;
   }
 
   CoordinateFrame get_rotated_coordinate_frame(m_t x_rotation, m_t y_rotation,
                                                m_t z_rotation) {
+
+    // tricky here is that our z axis points downward
+    // if we are in negative z, in our coordinate system,
+    // and our camera points in positive z direction so we look down at
+    // the coordinate system at our xs and ys, when we rotate positive z
+    // rotation with no other rotation, we expect the x axis to
+    // to move clockwise. That said, our input rotation from the filter
+    // represents rotation from the global coordinate system to the filter
+    // cordinate system. We want to undo that rotation when we visualize,
+    // to show the world coordinate system and the z heading.
+    // when we calculate rotation matrix and rotate our coordinate frame
+    // we haven't put in the info that we flipped our z axis from up to down
+    // hence we would need to flip rotation as well. By not telling it that info
+    // we get this flip of rotation sign.
     RotationMatrix rotation_matrix =
         get_xyz_rotation(x_rotation, y_rotation, z_rotation);
 
@@ -91,63 +111,23 @@ public:
 
     // https://stackoverflow.com/questions/724219/how-to-convert-a-3d-point-into-2d-perspective-projection
 
-    m_t half_width = display_width_ / 2;
-    m_t half_height = display_height_ / 2;
-
-    Eigen::Matrix<m_t, 4, 4> clip_matrix =
-        get_clip_matrix(M_PI / 2, display_width_ / display_height_, -1, 2);
-
-    // converting to xyzw coords
+    // // converting to xyzw coords
     Eigen::Matrix<m_t, 6, 4> existing_coords;
     existing_coords.setIdentity();
     existing_coords(Eigen::seq(0, 5), Eigen::seq(0, 2)) = frame.frame;
     Eigen::Matrix<m_t, 6, 1> ones;
     ones.setOnes();
     existing_coords(Eigen::seq(0, 5), 3) = ones;
+    // scale our coordinate frames down so they don't take up so much space on
+    // the screen
+    existing_coords(Eigen::seq(0, 5), Eigen::seq(0, 2)) =
+        existing_coords(Eigen::seq(0, 5), Eigen::seq(0, 2)).array() /
+        frame_rescale_factor_;
 
-    // doing inverse camera matrix transformation
-    // our screen has x as width and y as length, so we need to rotate pi / 2,
-    // 90 degrees, around z to correct
-    Eigen::Matrix<m_t, 4, 4> inverse_camera_matrix;
-    inverse_camera_matrix.setIdentity();
-    /*
-        inverse_camera_matrix(2, 3) = 3;
-
-        inverse_camera_matrix(Eigen::seq(0, 2), Eigen::seq(0, 2)) =
-            get_y_rotation(M_PI / 8) * get_x_rotation(M_PI) *
-            get_z_rotation(M_PI / 2);
-    */
-    // std::cout << "inverse cam matrix:\n" << inverse_camera_matrix <<
-    // std::endl;
-    existing_coords = existing_coords * inverse_camera_matrix;
-
-    // std::cout << "existing coord post cam, pre norm\n"
-    //           << existing_coords << std::endl;
-
-    int r = static_cast<int>(existing_coords.rows());
-
-    for (int i = 0; i < r; i++) {
-      existing_coords(i, Eigen::seq(0, 2)) =
-          existing_coords(i, Eigen::seq(0, 2)) / existing_coords(i, 3);
-    }
-    // std::cout << "existing coord post norm\n" << existing_coords <<
-    // std::endl;
-
-    // applying clip matrix
-    Eigen::Matrix<m_t, 6, 4> new_points;
-    new_points.setZero();
-
-    new_points = existing_coords * clip_matrix;
-    // std::cout << "post clip matrix\n" << new_points << std::endl;
-
-    r = static_cast<int>(new_points.rows());
-
-    for (int i = 0; i < r; i++) {
-      new_points(i, Eigen::seq(0, 2)) =
-          new_points(i, Eigen::seq(0, 2)) / new_points(i, 3);
-    }
-
-    // std::cout << "post clip, post norm\n" << new_points << std::endl;
+    // our screen has x as the width of screen and y as height
+    // whereas our coordinate system is reversed.
+    existing_coords(Eigen::seq(0, 5), Eigen::seq(0, 2)) =
+        existing_coords(Eigen::seq(0, 5), Eigen::seq(0, 2)) * flip_x_y_matrix_;
 
     // screen projection from coordinate to 2d screen
     FlattenedCoordinateFrame new_frame;
@@ -157,24 +137,28 @@ public:
          static_cast<double>(display_width_))
                 .array() /
             ((2.0F * existing_coords(Eigen::seq(0, 5), 3))).array() +
-        half_width;
+        half_width_;
 
     new_frame.frame(Eigen ::seq(0, 5), 1) =
         (existing_coords(Eigen ::seq(0, 5), 1) *
          static_cast<double>(display_height_))
                 .array() /
             ((2.0F * existing_coords(Eigen::seq(0, 5), 3))).array() +
-        half_height;
-
-    // new_frame.frame = new_frame.frame * flip_x_y_matrix_;
+        half_height_;
     return new_frame;
   }
 
 private:
   size_t display_width_;
   size_t display_height_;
+
+  m_t half_width_;
+  m_t half_height_;
+  double frame_rescale_factor_;
+
   CoordinateFrame base_frame_;
-  Eigen::Matrix<m_t, 2, 2> flip_x_y_matrix_;
+  Eigen::Matrix<m_t, 3, 3> flip_x_y_matrix_;
+  Eigen::Matrix<m_t, 4, 4> zoom_out_matrix_;
 };
 
 void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis);

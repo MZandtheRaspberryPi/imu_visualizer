@@ -74,6 +74,24 @@ void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis) {
     triad.z = msg.euler_angles_filter().z();
     msg_vis.euler_angles_filter = triad;
   }
+
+  if (msg.has_cov_matrix_filter()) {
+    const imu_msgs::CovarianceMatrix &cov_matrix = msg.cov_matrix_filter();
+    size_t row_counter = 0;
+    double trace = 0.0;
+    for (const imu_msgs::MatrixRow &row : cov_matrix.row()) {
+      size_t within_row_ctr = 0;
+      for (const double &val : row.val()) {
+        if (row_counter == within_row_ctr) {
+          trace += val;
+          break;
+        }
+      }
+      row_counter++;
+    }
+
+    msg_vis.covariance_matrix_trace = trace;
+  }
 }
 
 std::shared_ptr<ListenerClient> get_listener() {
