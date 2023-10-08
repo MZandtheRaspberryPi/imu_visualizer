@@ -80,12 +80,14 @@ void proto_msg_to_c_struct(const imu_msgs::ImuMsg &msg, ImuMsgVis &msg_vis) {
     size_t row_counter = 0;
     double trace = 0.0;
     for (const imu_msgs::MatrixRow &row : cov_matrix.row()) {
+      std::cout << "row: " << row_counter << std::endl;
       size_t within_row_ctr = 0;
       for (const double &val : row.val()) {
         if (row_counter == within_row_ctr) {
           trace += val;
           break;
         }
+        within_row_ctr++;
       }
       row_counter++;
     }
