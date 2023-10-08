@@ -9,7 +9,6 @@ WORKDIR /
 
 COPY CMakeLists.txt /repo/CMakeLists.txt
 COPY eigen /repo/eigen
-COPY imu_visualizer_py /repo/imu_visualizer_py/
 COPY imu_websockets /repo/imu_websockets
 COPY include /repo/include
 COPY src /repo/src
@@ -23,6 +22,7 @@ RUN make
 
 RUN ls -ltr
 
+COPY imu_visualizer_py /repo/imu_visualizer_py/
 RUN cp libimu_visualizer_lib.so /repo/imu_visualizer_py/libimu_visualizer_lib.so
 
 FROM ubuntu:22.04

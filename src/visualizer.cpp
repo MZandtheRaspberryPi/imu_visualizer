@@ -92,11 +92,8 @@ rotate_frame(double x_rotation, double y_rotation, double z_rotation) {
   static double height = 64;
   static IMUVisualizer vis(width, height);
 
-  // we take in rotation that represents rotation from world frame to sensor
-  // frame. to show the world frame on our oled screen, we need to negate the
-  // rotation
   CoordinateFrame new_frame =
-      vis.get_rotated_coordinate_frame(-x_rotation, -y_rotation, -z_rotation);
+      vis.get_rotated_coordinate_frame(x_rotation, y_rotation, z_rotation);
   // std::cout << "original coord\n" << new_frame.frame << std::endl;
   FlattenedCoordinateFrame flattened_frame =
       vis.flatten_coordinate_frame(new_frame);
